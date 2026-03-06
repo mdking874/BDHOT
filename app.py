@@ -30,7 +30,7 @@ TARGET_CATEGORIES = {
 }
 
 # ⚙️ আপনি প্রতিটি সাইটের কতগুলো পেজ থেকে ভিডিও আনতে চান তা এখানে দিন
-PAGES_TO_SCRAPE = 100  # ১ থেকে ৩ নাম্বার পেজ পর্যন্ত স্ক্র্যাপ করবে
+PAGES_TO_SCRAPE = 20 # ১ থেকে ৩ নাম্বার পেজ পর্যন্ত স্ক্র্যাপ করবে
 
 # ✅ ২. আপনার ফায়ারবেস ডাটাবেসের লিংক
 FIREBASE_URL = "https://bkhot-5f82a-default-rtdb.firebaseio.com/videos.json"
