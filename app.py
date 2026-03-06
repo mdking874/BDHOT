@@ -14,16 +14,23 @@ app = Flask(__name__)
 # ⚠️ ১. এখানে আপনার ওয়েবসাইটগুলোর লিংক ক্যাটাগরি অনুযায়ী দিন
 TARGET_CATEGORIES = {
     "Indian":[
-        "https://desibp1.com",
-        "https://fry99.cc"
+        "https://www.desitales2.com/videos/category/indian-sex-video/",
+        "https://www.desitales2.com/videos/category/indian-xxx/"
+        "https://desibp1.com/"
     ],
     "Bangla":[
-        "https://desibf.com/tag/desi-49"
+        "https://fry99.cc",  # আপনার দেওয়া বিডি সাইট
+        "https://desibf.com"
+        "https://kamareels2.com/top-rated/"
+        "https://kamareels2.com/tags/bangla-sex/"
     ],
     "Pakistani":[
-        "https://www.desitales2.com/videos/tag/desi12"
+        "https://www.desitales2.com/videos/category/pakistani-sex-video/"
     ]
 }
+
+# ⚙️ আপনি প্রতিটি সাইটের কতগুলো পেজ থেকে ভিডিও আনতে চান তা এখানে দিন
+PAGES_TO_SCRAPE = 100  # ১ থেকে ৩ নাম্বার পেজ পর্যন্ত স্ক্র্যাপ করবে
 
 # ✅ ২. আপনার ফায়ারবেস ডাটাবেসের লিংক
 FIREBASE_URL = "https://bkhot-5f82a-default-rtdb.firebaseio.com/videos.json"
@@ -47,6 +54,11 @@ def scrape_single_site(data):
     try:
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
         res = requests.get(site, headers=headers, timeout=8)
+        
+        # যদি পেজ না থাকে (404 Error), তাহলে বাদ দিয়ে দিবে
+        if res.status_code != 200:
+            return[]
+
         soup = BeautifulSoup(res.text, 'html.parser')
         
         for a in soup.find_all('a'):
@@ -67,11 +79,13 @@ def scrape_single_site(data):
                             'page_link': full_page_link,
                             'thumb': thumb,
                             'title': title,
-                            'category': category # ক্যাটাগরি যুক্ত করা হলো
+                            'category': category
                         })
     except Exception as e:
         pass
-    return site_links[:5]
+    
+    # আগে [:5] দেওয়া ছিল বলে শুধু ৫টা পেতো। এখন পেজে যা পাবে সবই আনবে।
+    return site_links 
 
 def process_video_link(item):
     stream_url = get_stream_link(item['page_link'])
@@ -81,25 +95,36 @@ def process_video_link(item):
             "title": item['title'],
             "thumb": item['thumb'],
             "url": stream_url,
-            "category": item['category'] # ডাটাবেসে ক্যাটাগরি সেভ হবে
+            "category": item['category']
         }
     return None
 
 def fetch_videos_now():
     TARGET_LIST =[]
+    
+    # 🌟 নতুন পেজিনেশন সিস্টেম (page/2, page/3 এড করবে)
     for cat, urls in TARGET_CATEGORIES.items():
-        for url in urls:
-            TARGET_LIST.append((cat, url))
+        for base_url in urls:
+            TARGET_LIST.append((cat, base_url)) # প্রথম পেজ
+            
+            # ২ থেকে PAGES_TO_SCRAPE পর্যন্ত পেজগুলো লিস্টে যোগ করবে
+            for page_num in range(2, PAGES_TO_SCRAPE + 1):
+                if base_url.endswith('/'):
+                    paginated_url = f"{base_url}page/{page_num}/"
+                else:
+                    paginated_url = f"{base_url}/page/{page_num}/"
+                TARGET_LIST.append((cat, paginated_url))
             
     all_valid_links = []
     videos =[]
     
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    # থ্রেডপুল বাড়িয়ে দেওয়া হয়েছে কারণ এখন অনেক পেজ স্ক্র্যাপ হবে
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
         results = executor.map(scrape_single_site, TARGET_LIST)
         for res in results:
             all_valid_links.extend(res)
             
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=15) as executor:
         video_results = executor.map(process_video_link, all_valid_links)
         for v in video_results:
             if v:
@@ -127,7 +152,7 @@ HTML_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎬🥵 BD HOT VIDEO</title>
+    <title>🎬 Auto Video Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }</style>
@@ -177,15 +202,11 @@ HTML_TEMPLATE = """
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
             {% for video in videos %}
             <a href="/watch/{{ video.id }}" class="bg-gray-800 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition border border-gray-700 group block relative">
-                <!-- ভিডিও থাম্বনেইল -->
                 <div class="relative">
                     <img src="{{ video.thumb }}" loading="lazy" class="w-full h-28 sm:h-32 object-cover group-hover:opacity-75 transition bg-gray-700">
                     <div class="absolute bottom-1 right-1 bg-black bg-opacity-80 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">▶ Play</div>
-                    
-                    <!-- 🌟 ভিডিওর উপরে ক্যাটাগরি লেখা থাকবে -->
                     <div class="absolute top-1 left-1 bg-indigo-600 text-white text-[9px] px-1.5 py-0.5 rounded shadow-md font-bold uppercase">{{ video.category | default('Mixed') }}</div>
                 </div>
-                <!-- ভিডিওর টাইটেল -->
                 <div class="p-2.5">
                     <h3 class="font-semibold text-xs text-gray-200 line-clamp-2">{{ video.title }}</h3>
                 </div>
@@ -201,7 +222,6 @@ HTML_TEMPLATE = """
 </html>
 """
 
-# 🏠 হোমপেজ (যেখানে সব ভিডিও একসাথে থাকবে)
 @app.route('/')
 def home():
     all_videos = get_firebase_videos()
@@ -209,30 +229,24 @@ def home():
         all_videos =[]
     return render_template_string(HTML_TEMPLATE, videos=all_videos, current_video=None, total_count=len(all_videos), active_cat="Home")
 
-# 📂 ক্যাটাগরি পেজ (যেমন: /category/Indian)
 @app.route('/category/<cat_name>')
 def category(cat_name):
     all_videos = get_firebase_videos()
     if not isinstance(all_videos, list):
-        all_videos =[]
-    # শুধুমাত্র যে ক্যাটাগরিতে ক্লিক করা হয়েছে, সেই ভিডিওগুলো ফিল্টার করা
-    filtered_videos = [v for v in all_videos if v.get('category') == cat_name]
-    
+        all_videos = []
+    filtered_videos =[v for v in all_videos if v.get('category') == cat_name]
     return render_template_string(HTML_TEMPLATE, videos=filtered_videos, current_video=None, total_count=len(all_videos), active_cat=cat_name)
 
-# 🎬 ভিডিও প্লেয়ার পেজ
 @app.route('/watch/<video_id>')
 def watch(video_id):
     all_videos = get_firebase_videos()
     if not isinstance(all_videos, list):
-        all_videos = []
-        
+        all_videos =[]
     video = next((v for v in all_videos if v['id'] == video_id), None)
     if video:
         return render_template_string(HTML_TEMPLATE, videos=None, current_video=video, total_count=len(all_videos), active_cat="Home")
     return "<body style='background:#111; color:white; text-align:center;'><h1 style='margin-top:50px;'>Video Not Found!</h1><a href='/' style='color:#6366f1;'>Go Home</a></body>", 404
 
-# 🚀 ব্যাকগ্রাউন্ডে অটোমেটিক ভিডিও আনার সিক্রেট লিংক
 @app.route('/auto-update')
 def auto_update():
     all_videos = get_firebase_videos()
@@ -252,7 +266,8 @@ def auto_update():
             existing_titles.add(video['title'])
             added_count += 1
             
-    all_videos = all_videos[:1000] # স্টোরেজ যেন ফুল না হয়, সর্বোচ্চ ১০০০ ভিডিও 
+    # স্টোরেজ ফুল হওয়ার ভয় থাকলে সংখ্যা বাড়িয়ে নিতে পারেন, আপাতত ২০০০ করা হলো 
+    all_videos = all_videos[:2000] 
     
     if added_count > 0:
         save_firebase_videos(all_videos)
