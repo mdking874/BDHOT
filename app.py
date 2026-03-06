@@ -15,8 +15,8 @@ app = Flask(__name__)
 TARGET_CATEGORIES = {
     "Indian":[
         "https://m.24xxxx.win"
-        "https://www.desitales2.com/videos/category/indian-xxx/"
-        "https://desibp1.com/"
+        ""
+        ""
     ],
     "Bangla":[
         "https://fry99.cc",  # আপনার দেওয়া বিডি সাইট
