@@ -267,7 +267,7 @@ def auto_update():
             added_count += 1
             
     # স্টোরেজ ফুল হওয়ার ভয় থাকলে সংখ্যা বাড়িয়ে নিতে পারেন, আপাতত ২০০০ করা হলো 
-    all_videos = all_videos[:2000] 
+    all_videos = all_videos[:99999999] 
     
     if added_count > 0:
         save_firebase_videos(all_videos)
