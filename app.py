@@ -14,7 +14,7 @@ app = Flask(__name__)
 # ⚠️ ১. এখানে আপনার ওয়েবসাইটগুলোর লিংক ক্যাটাগরি অনুযায়ী দিন
 TARGET_CATEGORIES = {
     "Indian":[
-        "https://www.desitales2.com/videos/category/indian-sex-video/",
+        "https://m.24xxxx.win"
         "https://www.desitales2.com/videos/category/indian-xxx/"
         "https://desibp1.com/"
     ],
@@ -25,7 +25,7 @@ TARGET_CATEGORIES = {
         "https://kamareels2.com/tags/bangla-sex/"
     ],
     "Pakistani":[
-        "https://www.desitales2.com/videos/category/pakistani-sex-video/"
+        "https://desibp1.com/"
     ]
 }
 
