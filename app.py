@@ -30,7 +30,7 @@ TARGET_CATEGORIES = {
 }
 
 # ⚙️ Vercel এর টাইমআউট এড়াতে এটি ১ বা ২ রাখা ভালো
-PAGES_TO_SCRAPE = 2  
+PAGES_TO_SCRAPE = 30
 
 # ✅ ২. আপনার ফায়ারবেস ডাটাবেসের লিংক
 FIREBASE_URL = "https://bkhot-5f82a-default-rtdb.firebaseio.com/videos.json"
