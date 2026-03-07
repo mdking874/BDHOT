@@ -5,7 +5,7 @@ import uuid
 import time
 import concurrent.futures
 from bs4 import BeautifulSoup
-from flask import Flask, render_template_string
+from flask import Flask, render_template_string, Response
 from urllib.parse import urljoin
 import json
 
@@ -28,6 +28,7 @@ TARGET_CATEGORIES = {
         "https://desibp1.com/"
     ]
 }
+
 # ⚙️ Vercel এর টাইমআউট এড়াতে এটি ১ বা ২ রাখা ভালো
 PAGES_TO_SCRAPE = 2  
 
@@ -271,6 +272,17 @@ def auto_update():
         return f"Success! Added {added_count} NEW videos to database."
     
     return "Checked! No new videos found right now. No duplicates added."
+
+# 💰 Monetag Service Worker File Route
+@app.route('/sw.js')
+def service_worker():
+    js_content = """self.options = {
+    "domain": "3nbf4.com",
+    "zoneId": 10695580
+}
+self.lary = ""
+importScripts('https://3nbf4.com/act/files/service-worker.min.js?r=sw')"""
+    return Response(js_content, mimetype='application/javascript')
 
 if __name__ == '__main__':
     app.run(debug=True)
