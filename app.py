@@ -111,7 +111,7 @@ def fetch_videos_now():
                     paginated_url = f"{base_url}/page/{page_num}/"
                 TARGET_LIST.append((cat, paginated_url))
             
-    all_valid_links = []
+    all_valid_links =[]
     videos =[]
     
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
@@ -147,10 +147,6 @@ HTML_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- 💰 Monetag Ads Verification Tag -->
-    <meta name="monetag" content="28a10e5b80b476793d6114009e81e3dd">
-    
     <title>🎬 Auto Video Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -173,9 +169,18 @@ HTML_TEMPLATE = """
     {% if current_video %}
     <div class="container mx-auto p-2 sm:p-4 max-w-4xl mt-2 block">
         <button onclick="history.back()" class="inline-block mb-4 bg-gray-700 text-white px-3 py-1.5 rounded text-sm font-bold shadow">🔙 ফিরে যান</button>
+        
         <div class="bg-black rounded-lg overflow-hidden shadow-2xl relative border border-gray-800">
             <video id="main-player" controls autoplay class="w-full aspect-video" controlsList="nodownload"></video>
         </div>
+        
+        <!-- 💰 Monetag Direct Link Button -->
+        <div class="mt-4">
+            <a href="https://omg10.com/4/9810697" target="_blank" class="block w-full text-center bg-red-600 hover:bg-red-700 text-white font-extrabold py-3.5 px-4 rounded-lg shadow-xl animate-pulse border border-red-500 text-lg transition-all duration-300">
+                📥 Download Full HD Video
+            </a>
+        </div>
+
         <div class="bg-gray-800 p-4 mt-4 rounded-lg shadow-lg border border-gray-700">
             <h1 class="text-lg sm:text-xl font-bold text-white mb-2">{{ current_video.title }}</h1>
             <span class="inline-block bg-indigo-600 text-xs px-2 py-1 rounded-full font-bold">🏷️ Category: {{ current_video.category | default('Mixed') }}</span>
@@ -200,7 +205,7 @@ HTML_TEMPLATE = """
         {% if videos %}
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
             {% for video in videos %}
-            <a href="/watch/{{ video.id }}" class="bg-gray-800 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition border border-gray-700 group block relative">
+            <a href="/watch/{{ video.id }}" class="bg-gray-800 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition border border-gray-700 group block relative video-thumbnail-link">
                 <div class="relative">
                     <img src="{{ video.thumb }}" loading="lazy" class="w-full h-28 sm:h-32 object-cover group-hover:opacity-75 transition bg-gray-700">
                     <div class="absolute bottom-1 right-1 bg-black bg-opacity-80 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">▶ Play</div>
@@ -216,6 +221,33 @@ HTML_TEMPLATE = """
         <p class="text-center text-gray-400 mt-10 animate-pulse">ভিডিও পাওয়া যায়নি বা আনা হচ্ছে... একটু অপেক্ষা করুন।</p>
         {% endif %}
     </div>
+
+    <!-- 🚀 ৩ নম্বর ক্লিকে অ্যাড ওপেন করার স্ক্রিপ্ট -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // ওয়েবসাইটের সব ভিডিও থাম্বনেইল লিংক সিলেক্ট করা হলো
+            var videoLinks = document.querySelectorAll('.video-thumbnail-link');
+            var directLinkAds = "https://omg10.com/4/9810697";
+
+            videoLinks.forEach(function(link) {
+                link.addEventListener("click", function(e) {
+                    // লোকাল স্টোরেজ থেকে আগের ক্লিক কাউন্ট আনা
+                    var clicks = parseInt(localStorage.getItem("adClickCounter") || "0");
+                    clicks++; // ক্লিক ১ বাড়ানো হলো
+
+                    if (clicks >= 3) {
+                        // ৩ নম্বর ক্লিক হলে অ্যাড ওপেন হবে নতুন ট্যাবে
+                        window.open(directLinkAds, "_blank");
+                        // কাউন্ট আবার 0 করে দেওয়া হলো
+                        localStorage.setItem("adClickCounter", "0");
+                    } else {
+                        // তা না হলে কাউন্ট সেভ করে রাখা হলো
+                        localStorage.setItem("adClickCounter", clicks.toString());
+                    }
+                });
+            });
+        });
+    </script>
     {% endif %}
 </body>
 </html>
@@ -265,24 +297,13 @@ def auto_update():
             existing_titles.add(video['title'])
             added_count += 1
             
-    all_videos = all_videos[:2000] 
+    all_videos = all_videos[:99999] 
     
     if added_count > 0:
         save_firebase_videos(all_videos)
         return f"Success! Added {added_count} NEW videos to database."
     
     return "Checked! No new videos found right now. No duplicates added."
-
-# 💰 Monetag Service Worker File Route
-@app.route('/sw.js')
-def service_worker():
-    js_content = """self.options = {
-    "domain": "3nbf4.com",
-    "zoneId": 10695580
-}
-self.lary = ""
-importScripts('https://3nbf4.com/act/files/service-worker.min.js?r=sw')"""
-    return Response(js_content, mimetype='application/javascript')
 
 if __name__ == '__main__':
     app.run(debug=True)
