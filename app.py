@@ -28,9 +28,8 @@ TARGET_CATEGORIES = {
         "https://desibp1.com/"
     ]
 }
-
-# ⚙️ আপনি প্রতিটি সাইটের কতগুলো পেজ থেকে ভিডিও আনতে চান তা এখানে দিন
-PAGES_TO_SCRAPE = 20 # ১ থেকে ৩ নাম্বার পেজ পর্যন্ত স্ক্র্যাপ করবে
+# ⚙️ Vercel এর টাইমআউট এড়াতে এটি ১ বা ২ রাখা ভালো
+PAGES_TO_SCRAPE = 2  
 
 # ✅ ২. আপনার ফায়ারবেস ডাটাবেসের লিংক
 FIREBASE_URL = "https://bkhot-5f82a-default-rtdb.firebaseio.com/videos.json"
@@ -55,7 +54,6 @@ def scrape_single_site(data):
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
         res = requests.get(site, headers=headers, timeout=8)
         
-        # যদি পেজ না থাকে (404 Error), তাহলে বাদ দিয়ে দিবে
         if res.status_code != 200:
             return[]
 
@@ -84,7 +82,6 @@ def scrape_single_site(data):
     except Exception as e:
         pass
     
-    # আগে [:5] দেওয়া ছিল বলে শুধু ৫টা পেতো। এখন পেজে যা পাবে সবই আনবে।
     return site_links 
 
 def process_video_link(item):
@@ -102,12 +99,10 @@ def process_video_link(item):
 def fetch_videos_now():
     TARGET_LIST =[]
     
-    # 🌟 নতুন পেজিনেশন সিস্টেম (page/2, page/3 এড করবে)
     for cat, urls in TARGET_CATEGORIES.items():
         for base_url in urls:
-            TARGET_LIST.append((cat, base_url)) # প্রথম পেজ
+            TARGET_LIST.append((cat, base_url))
             
-            # ২ থেকে PAGES_TO_SCRAPE পর্যন্ত পেজগুলো লিস্টে যোগ করবে
             for page_num in range(2, PAGES_TO_SCRAPE + 1):
                 if base_url.endswith('/'):
                     paginated_url = f"{base_url}page/{page_num}/"
@@ -118,7 +113,6 @@ def fetch_videos_now():
     all_valid_links = []
     videos =[]
     
-    # থ্রেডপুল বাড়িয়ে দেওয়া হয়েছে কারণ এখন অনেক পেজ স্ক্র্যাপ হবে
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
         results = executor.map(scrape_single_site, TARGET_LIST)
         for res in results:
@@ -152,6 +146,10 @@ HTML_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 💰 Monetag Ads Verification Tag -->
+    <meta name="monetag" content="28a10e5b80b476793d6114009e81e3dd">
+    
     <title>🎬 Auto Video Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -266,8 +264,7 @@ def auto_update():
             existing_titles.add(video['title'])
             added_count += 1
             
-    # স্টোরেজ ফুল হওয়ার ভয় থাকলে সংখ্যা বাড়িয়ে নিতে পারেন, আপাতত ২০০০ করা হলো 
-    all_videos = all_videos[:99999999] 
+    all_videos = all_videos[:2000] 
     
     if added_count > 0:
         save_firebase_videos(all_videos)
