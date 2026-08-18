@@ -132,22 +132,27 @@ def process_video_link(item):
     return None
 
 
+SCAN_INDEX_URL = "https://bkhot-5f82a-default-rtdb.firebaseio.com/scan_index.json"
+
+
 def get_scan_index():
     try:
-        with open("scan_index.json", "r") as f:
-            data = json.load(f)
-            return data.get("index", 0)
+        res = requests.get(SCAN_INDEX_URL)
+        if res.status_code == 200 and res.json():
+            return res.json().get("index", 0)
     except:
-        return 0
+        pass
+    return 0
 
 
 def save_scan_index(index):
     try:
-        with open("scan_index.json", "w") as f:
-            json.dump({"index": index}, f)
+        requests.put(
+            SCAN_INDEX_URL,
+            json={"index": index}
+        )
     except:
         pass
-
 
 def fetch_videos_now():
 
