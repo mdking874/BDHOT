@@ -14,57 +14,57 @@ app = Flask(__name__)
 # ⚠️ ১. এখানে আপনার ওয়েবসাইটগুলোর লিংক ক্যাটাগরি অনুযায়ী দিন
 TARGET_CATEGORIES = {
     "Indian":[
-        "https://m.24xxxx.win"
-        "https://desihub.cc/desi/"
-        "https://desihub.cc/desi/page/2/"
-        "https://bodgirls.com/videos/"
+        "https://m.24xxxx.win",
+        "https://desihub.cc/desi/",
+        "https://desihub.cc/desi/page/2/",
+        "https://bodgirls.com/videos/",
         
     ],
     "Bangla":[
         "https://fry99.cc",  # আপনার দেওয়া বিডি সাইট
-        "https://desibf.com"
-        "https://kamareels2.com/top-rated/"
-        "https://kamareels2.com/tags/bangla-sex/"
-        "https://masa49.cam/latest-videos/"
-        "https://masa49.cam/category/sri-lankan-porn/page/2/"
-        "https://masa49.cam/category/sri-lankan-porn/"
-        "https://masa49.cam/category/desi-amateur-porn/page/5/"
-        "https://masa49.cam/category/desi-amateur-porn/page/4/"
-        "https://desibf.com/bangladeshi-porn/"
-        "https://desibf.com/bangladeshi-porn/page/2/"
-        "https://desibf.com/bangladeshi-porn/page/3/"
-        "https://desibf.com/local-mms/"
-        "https://desibf.com/local-mms/page/2/"
-        "https://desibf.com/local-mms/page/3/"
-        "https://desibf.com/bangladeshi-porn/page/4/"
-        "https://desibf.com/bangladeshi-porn/page/5/"
-        "https://desibf.com/bangladeshi-porn/page/6/"
-        "https://desibf.com/bangladeshi-porn/page/7/"
-        "https://desixx.top/tag/masa49-com/"
-        "https://desixxx.love/"
-        "https://desixxx.love/category/bangladeshi/"
-        "https://desixxx.love/category/bangladeshi/page/2/"
+        "https://desibf.com",
+        "https://kamareels2.com/top-rated/",
+        "https://kamareels2.com/tags/bangla-sex/",
+        "https://masa49.cam/latest-videos/",
+        "https://masa49.cam/category/sri-lankan-porn/page/2/",
+        "https://masa49.cam/category/sri-lankan-porn/",
+        "https://masa49.cam/category/desi-amateur-porn/page/5/",
+        "https://masa49.cam/category/desi-amateur-porn/page/4/",
+        "https://desibf.com/bangladeshi-porn/",
+        "https://desibf.com/bangladeshi-porn/page/2/",
+        "https://desibf.com/bangladeshi-porn/page/3/",
+        "https://desibf.com/local-mms/",
+        "https://desibf.com/local-mms/page/2/",
+        "https://desibf.com/local-mms/page/3/",
+        "https://desibf.com/bangladeshi-porn/page/4/",
+        "https://desibf.com/bangladeshi-porn/page/5/",
+        "https://desibf.com/bangladeshi-porn/page/6/",
+        "https://desibf.com/bangladeshi-porn/page/7/",
+        "https://desixx.top/tag/masa49-com/",
+        "https://desixxx.love/",
+        "https://desixxx.love/category/bangladeshi/",
+        "https://desixxx.love/category/bangladeshi/page/2/",
     ],
     "Pakistani":[
-        "https://desibp1.com/"
-        "https://masa49.cam/"
-        "https://masa49.cam/page/2/"
-        "https://masa49.cam/page/3/"
-        "https://masa49.cam/page/3/"
-        "https://masa49.cam/page/4/"
-        "https://xmalayporn.com/"
-        "https://xmalayporn.com/category/awek-tudung/page/3/"
-        "https://xmalayporn.com/category/awek-tudung/page/2/"
-        "https://xmalayporn.com/category/awek-tudung/"
-        "https://xmalayporn.com/?filter=latest"
-        "https://xmalayporn.com/category/bigo-live"
-        "https://xmalayporn.com/?filter=random"
+        "https://desibp1.com/",
+        "https://masa49.cam/",
+        "https://masa49.cam/page/2/",
+        "https://masa49.cam/page/3/",
+        "https://masa49.cam/page/3/",
+        "https://masa49.cam/page/4/",
+        "https://xmalayporn.com/",
+        "https://xmalayporn.com/category/awek-tudung/page/3/",
+        "https://xmalayporn.com/category/awek-tudung/page/2/",
+        "https://xmalayporn.com/category/awek-tudung/",
+        "https://xmalayporn.com/?filter=latest",
+        "https://xmalayporn.com/category/bigo-live",
+        "https://xmalayporn.com/?filter=random",
         
     ]
 }
 
 # ⚙️ Vercel এর টাইমআউট এড়াতে এটি ১ বা ২ রাখা ভালো
-PAGES_TO_SCRAPE = 30
+PAGES_TO_SCRAPE = 5
 
 # ✅ ২. আপনার ফায়ারবেস ডাটাবেসের লিংক
 FIREBASE_URL = "https://bkhot-5f82a-default-rtdb.firebaseio.com/videos.json"
