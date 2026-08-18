@@ -10,6 +10,9 @@ from urllib.parse import urljoin
 import json
 
 app = Flask(__name__)
+@app.route('/test')
+def test():
+    return "APP IS RUNNING"
 
 # ⚠️ ১. এখানে আপনার ওয়েবসাইটগুলোর লিংক ক্যাটাগরি অনুযায়ী দিন
 TARGET_CATEGORIES = {
