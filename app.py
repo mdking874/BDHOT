@@ -134,16 +134,27 @@ def process_video_link(item):
 def fetch_videos_now():
     TARGET_LIST =[]
     
-    for cat, urls in TARGET_CATEGORIES.items():
-        for base_url in urls:
-            TARGET_LIST.append((cat, base_url))
-            
-            for page_num in range(2, PAGES_TO_SCRAPE + 1):
-                if base_url.endswith('/'):
-                    paginated_url = f"{base_url}page/{page_num}/"
-                else:
-                    paginated_url = f"{base_url}/page/{page_num}/"
-                TARGET_LIST.append((cat, paginated_url))
+    ALL_TARGETS = []
+
+for cat, urls in TARGET_CATEGORIES.items():
+    for url in urls:
+        ALL_TARGETS.append((cat, url))
+
+
+current_index = get_scan_index()
+
+TARGET_LIST = ALL_TARGETS[
+    current_index:current_index + BATCH_SIZE
+]
+
+
+next_index = current_index + BATCH_SIZE
+
+
+if next_index >= len(ALL_TARGETS):
+    save_scan_index(0)
+else:
+    save_scan_index(next_index)
             
     all_valid_links =[]
     videos =[]
