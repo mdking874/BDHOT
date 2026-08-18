@@ -64,7 +64,7 @@ TARGET_CATEGORIES = {
 }
 
 # ⚙️ Vercel এর টাইমআউট এড়াতে এটি ১ বা ২ রাখা ভালো
-PAGES_TO_SCRAPE = 5
+BATCH_SIZE = 5
 
 # ✅ ২. আপনার ফায়ারবেস ডাটাবেসের লিংক
 FIREBASE_URL = "https://bkhot-5f82a-default-rtdb.firebaseio.com/videos.json"
@@ -131,46 +131,77 @@ def process_video_link(item):
         }
     return None
 
+
+def get_scan_index():
+    try:
+        with open("scan_index.json", "r") as f:
+            data = json.load(f)
+            return data.get("index", 0)
+    except:
+        return 0
+
+
+def save_scan_index(index):
+    try:
+        with open("scan_index.json", "w") as f:
+            json.dump({"index": index}, f)
+    except:
+        pass
+
+
 def fetch_videos_now():
-    TARGET_LIST =[]
-    
+
     ALL_TARGETS = []
 
-for cat, urls in TARGET_CATEGORIES.items():
-    for url in urls:
-        ALL_TARGETS.append((cat, url))
+    # আপনার TARGET_CATEGORIES এর লিংক সিরিয়াল অনুযায়ী নেওয়া হবে
+    for cat, urls in TARGET_CATEGORIES.items():
+        for url in urls:
+            ALL_TARGETS.append((cat, url))
 
 
-current_index = get_scan_index()
-
-TARGET_LIST = ALL_TARGETS[
-    current_index:current_index + BATCH_SIZE
-]
+    # আগের জায়গা থেকে শুরু করবে
+    current_index = get_scan_index()
 
 
-next_index = current_index + BATCH_SIZE
+    # একবারে ৫টা ওয়েবসাইট চেক করবে
+    TARGET_LIST = ALL_TARGETS[
+        current_index: current_index + BATCH_SIZE
+    ]
 
 
-if next_index >= len(ALL_TARGETS):
-    save_scan_index(0)
-else:
-    save_scan_index(next_index)
-            
-    all_valid_links =[]
-    videos =[]
-    
+    # পরেরবার কোথা থেকে শুরু করবে
+    next_index = current_index + BATCH_SIZE
+
+
+    # লাস্টে গেলে আবার শুরু
+    if next_index >= len(ALL_TARGETS):
+        save_scan_index(0)
+    else:
+        save_scan_index(next_index)
+
+
+    all_valid_links = []
+    videos = []
+
+
+    # ওয়েবসাইট স্ক্র্যাপ
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
         results = executor.map(scrape_single_site, TARGET_LIST)
+
         for res in results:
             all_valid_links.extend(res)
-            
+
+
+    # ভিডিও লিংক বের করা
     with concurrent.futures.ThreadPoolExecutor(max_workers=15) as executor:
         video_results = executor.map(process_video_link, all_valid_links)
+
         for v in video_results:
             if v:
                 videos.append(v)
-    return videos
 
+
+    return videos
 def get_firebase_videos():
     try:
         res = requests.get(FIREBASE_URL)
